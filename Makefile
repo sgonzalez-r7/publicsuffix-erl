@@ -1,7 +1,7 @@
 compile:
 	mkdir -p ebin
 	erlc -o ebin src/tld_generator.erl
-	erl -pa ebin -noshell -eval 'tld_generator:generate(file, "publicsuffix.dat")' > src/tld.erl
+	erl -pa ebin -noshell -eval 'tld_generator:generate(file, "publicsuffix.dat"), halt()' > src/tld.erl
 	# erl -pa ebin -noshell -eval 'tld_generator:generate()' > src/tld.erl
 	erlc -o ebin src/tld.erl
 

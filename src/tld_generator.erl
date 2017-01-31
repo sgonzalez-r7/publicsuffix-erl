@@ -48,8 +48,7 @@ generate(file, File) ->
         Match = bin_fmt(lists:reverse(SplittedLine)),
         io:format("tld([~ts | [H | _T]]) -> [H, ~ts];~n", [Match, p(Line)])
     end, Props),
-    io:format("tld(_) -> undefined.~n"),
-    init:stop().
+    io:format("tld(_) -> undefined.~n").
 
 
 %%% Internal functions
