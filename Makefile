@@ -1,9 +1,14 @@
-compile:
-	mkdir -p ebin
-	erlc -o ebin src/tld_generator.erl
+all: ebin/tld.beam
+
+ebin/tld.beam: src/tld.erl
+	erlc -o ebin src/tld.erl
+
+src/tld.erl: ebin/tld_generator.beam
 	erl -pa ebin -noshell -eval 'tld_generator:generate(file, "publicsuffix.dat"), halt()' > src/tld.erl
 	# erl -pa ebin -noshell -eval 'tld_generator:generate()' > src/tld.erl
-	erlc -o ebin src/tld.erl
+
+ebin/tld_generator.beam: src/tld_generator.erl
+	erlc -o ebin src/tld_generator.erl
 
 test: compile
 	mkdir -p .eunit
