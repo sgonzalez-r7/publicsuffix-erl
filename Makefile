@@ -10,7 +10,7 @@ src/tld.erl: ebin/tld_generator.beam
 ebin/tld_generator.beam: src/tld_generator.erl
 	erlc -o ebin src/tld_generator.erl
 
-test: compile
+test: all
 	mkdir -p .eunit
 	erlc -o .eunit src/tld.erl tests/tld_tests.erl
 	erl +pc unicode -noshell -pa .eunit -eval "eunit:test(tld, [verbose])" -s init stop
