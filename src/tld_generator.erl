@@ -17,6 +17,7 @@ generate() ->
 
 
 generate(url, Url) ->
+    io:setopts([{encoding, unicode}]),
     inets:start(),
     application:start(asn1),
     application:start(crypto),
@@ -33,6 +34,7 @@ generate(url, Url) ->
     end;
 
 generate(file, File) ->
+    io:setopts([{encoding, unicode}]),
     {ok, Data} = file:read_file(File),
     Lines = [strip(Line) || Line <- binary:split(Data, <<"\n">>, [global])],
     FilterMap = fun
@@ -44,10 +46,9 @@ generate(file, File) ->
     head(),
     lists:map(fun({SplittedLine, Line}) ->
         Match = bin_fmt(lists:reverse(SplittedLine)),
-        io:format("tld([~s | [H | _T]]) -> [H, ~s];~n", [Match, p(Line)])
+        io:format("tld([~ts | [H | _T]]) -> [H, ~ts];~n", [Match, p(Line)])
     end, Props),
-    io:format("tld(_) -> undefined.~n"),
-    init:stop().
+    io:format("tld(_) -> undefined.~n").
 
 
 %%% Internal functions
@@ -101,4 +102,4 @@ bin_fmt([H], Acc) -> <<Acc/binary, (p(H))/binary>>;
 bin_fmt([H|T], Acc) -> bin_fmt(T, <<Acc/binary, (p(H))/binary, ", ">>).
 
 
-p(Binary) -> list_to_binary(io_lib:format("~tp", [Binary])).
+p(Binary) -> unicode:characters_to_binary(io_lib:format("~tp", [Binary])).
