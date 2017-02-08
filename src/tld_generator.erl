@@ -44,10 +44,15 @@ generate(file, File) ->
     end,
     Props = sort_props(lists:filtermap(FilterMap, Lines)),
     head(),
+    {Exceptions, Rules} = lists:partition(fun ({_S, <<"!", _/binary>>}) -> true; (_) -> false end, Props),
+    lists:map(fun({SplittedLine, Line}) ->
+        Match = bin_fmt(lists:reverse(SplittedLine)),
+        io:format("tld([~ts = H | _R]) -> [H, ~ts];~n", [Match, p(skip_to_dot(Line))])
+    end, Exceptions),
     lists:map(fun({SplittedLine, Line}) ->
         Match = bin_fmt(lists:reverse(SplittedLine)),
         io:format("tld([~ts | [H | _T]]) -> [H, ~ts];~n", [Match, p(Line)])
-    end, Props),
+    end, Rules),
     io:format("tld(_) -> undefined.~n").
 
 
@@ -97,9 +102,14 @@ head() ->
 
 bin_fmt(L) -> bin_fmt(L, <<>>).
 
-
+bin_fmt([<<"*">>], Acc) -> <<Acc/binary, "D1">>;
+bin_fmt([<<"!", H/binary>>], Acc) -> <<Acc/binary, (p(H))/binary>>;
 bin_fmt([H], Acc) -> <<Acc/binary, (p(H))/binary>>;
 bin_fmt([H|T], Acc) -> bin_fmt(T, <<Acc/binary, (p(H))/binary, ", ">>).
 
 
+p(<<"*", Rest/binary>>) -> unicode:characters_to_binary(io_lib:format("<<D1/binary, \"~ts\">>", [Rest]));
 p(Binary) -> unicode:characters_to_binary(io_lib:format("~tp", [Binary])).
+
+skip_to_dot(<<$., Rest/binary>>) -> Rest;
+skip_to_dot(<<_C/utf8, Rest/binary>>) -> skip_to_dot(Rest).
